@@ -18,4 +18,3 @@ func MySqlConnection(cfg mysql.Config) (*sql.DB , error ) {
 	return db , err
 }
 
-
