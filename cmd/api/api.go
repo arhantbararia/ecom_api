@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/arhantbararia/ecom_api/middleware"
 	"github.com/arhantbararia/ecom_api/service/user"
 )
 
@@ -36,6 +37,11 @@ func (s *APIServer) Run() error {
 	log.Printf("\n\nE-Comm API Server Running\n")
 	log.Println("Serving on", s.address)
 
-	return http.ListenAndServe(s.address, subrouter)
+	server := http.Server{
+		Addr:    s.address,
+		Handler: middleware.LogRequest(subrouter),
+	}
+
+	return server.ListenAndServe()
 
 }

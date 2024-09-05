@@ -20,15 +20,15 @@ func createDatabase() error {
 
 	//   s3Bucket := os.Getenv("S3_BUCKET")
 	//   secretKey := os.Getenv("SECRET_KEY")
-	MYSQL_USER := os.Getenv("DB_USER")
-	MYSQL_PASSWORD := os.Getenv("DB_PASSWORD")
-	MYSQL_HOST := os.Getenv("DB_HOST")
-	MYSQL_PORT := os.Getenv("DB_PORT")
-	DB_NAME := os.Getenv("DB_NAME")
+	MYSQL_USER := getEnv("DB_USER", "default_user")
+	MYSQL_PASSWORD := getEnv("DB_PASSWORD", "")
+	MYSQL_HOST := getEnv("DB_HOST", "localhost")
+	MYSQL_PORT := getEnv("DB_PORT", "3306")
+	DB_NAME := getEnv("DB_NAME", "default_db")
 
 	// Data Source Name: <username>:<password>@tcp(<hostname>:<port>)
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/", MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, MYSQL_PORT)
-
+	fmt.Println(dsn)
 	// Open a connection to the MySQL server
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
@@ -53,4 +53,11 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println("Database created successfully")
+}
+
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
