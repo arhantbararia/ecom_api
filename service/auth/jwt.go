@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -9,8 +10,7 @@ import (
 )
 
 func CreateJWT(secret []byte, userId string) (string, error) {
-	//Create a new JWT token
-	//Return the token and error if any
+	
 	expiration := utils.GetEnvInt("JWT_EXPIRATION", 3600*24)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId":    userId,
@@ -22,5 +22,24 @@ func CreateJWT(secret []byte, userId string) (string, error) {
 		return "", err
 	}
 	return tokenString, nil
+
+}
+
+func GetUserIDFromToken(r *http.Request) (string, error) {
+	
+	secret := []byte(utils.GetEnv("JWT_SECRET", "temp_secret"))
+	tokenString := r.Header.Get("Authorization")
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return secret, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return "", err
+	}
+	userId := claims["userId"].(string)
+	return userId, nil
 
 }

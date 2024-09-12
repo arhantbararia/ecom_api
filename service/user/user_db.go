@@ -16,13 +16,15 @@ func checkUserExists(db *sql.DB, email string) (string, error) {
 	query := "SELECT id FROM users WHERE email = ?"
 	var id string
 	err := db.QueryRow(query, email).Scan(&id)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+
 	if err != nil {
 		return "", fmt.Errorf("error getting user: %v", err)
 	}
 	return id, nil
 
-
-	
 }
 
 func CreateNewUserTable(db *sql.DB) error {
@@ -78,14 +80,13 @@ func createNewUser(db *sql.DB, payload models.RegisterUserPayload) error {
 
 }
 
-
-func GetUser(db *sql.DB , userID string , user *models.User ) error {
+func GetUser(db *sql.DB, userID string, user *models.User) error {
 	//query to get user and return its user_id if exists
 	query := "SELECT * FROM users WHERE id = ?"
-	
+
 	err := db.QueryRow(query, userID).Scan(
-		&user.ID , 
-		&user.FirstName , 
+		&user.ID,
+		&user.FirstName,
 		&user.LastName,
 		&user.Email,
 		&user.Password,
@@ -98,5 +99,3 @@ func GetUser(db *sql.DB , userID string , user *models.User ) error {
 	return nil
 
 }
-
-

@@ -33,7 +33,36 @@ func NewHandler(db *sql.DB) *Handler {
 func (h *Handler) RegisterRoutes(router *mux.Router) {
 	router.HandleFunc("/login", h.LoginHandle).Methods("POST")
 	router.HandleFunc("/register", h.RegisterHandle).Methods("POST")
+	router.HandleFunc("/user", h.GetUserData).Methods("GET")
 }
+
+
+
+
+func (h *Handler) GetUserData(w http.ResponseWriter, r *http.Request) {
+	//we are using JWT
+	//client will send JWT token in header
+	//we will extract the token and get the user_id from it
+	//then we will get the user from the user_id
+
+	userID, err := auth.GetUserIDFromToken(r)
+	if err != nil {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized"))
+		return
+	}
+
+
+	// get user from db
+	var user models.User
+	err = GetUser(h.db, userID, &user)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("some error occurred"))
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, user)
+}
+
 
 func (h *Handler) LoginHandle(w http.ResponseWriter, r *http.Request) {
 
@@ -68,7 +97,7 @@ func (h *Handler) LoginHandle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if password is correct
-	if !auth.ComparePassword(user.Password, payload.Password) {
+	if !auth.ComparePassword(payload.Password, user.Password) {
 		utils.WriteError(w, http.StatusConflict, fmt.Errorf("wrong password"))
 		return
 	}
@@ -80,8 +109,7 @@ func (h *Handler) LoginHandle(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusInternalServerError, fmt.Errorf("some error Occurred"))
 	}
 
-	utils.WriteJSON(w, http.StatusAccepted, map[string]string{"map": JWT_TOKEN})
-	
+	utils.WriteJSON(w, http.StatusAccepted, map[string]string{"Token": JWT_TOKEN})
 
 }
 
