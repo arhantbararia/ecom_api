@@ -7,7 +7,6 @@ import (
 	"os"
 
 	//3rd party
-	"database/sql"
 
 	"github.com/joho/godotenv"
 
@@ -42,24 +41,14 @@ func main() {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
-	CheckDB(mysql_db_cxn)
+	db.CheckDB(mysql_db_cxn)
 
-	server := api.NewAPIServer(":8000")
+	server := api.NewAPIServer(":8000", mysql_db_cxn)
 
 	if err := server.Run(); err != nil {
 		log.Fatal(err)
 
 	}
-}
-
-func CheckDB(db *sql.DB) {
-	log.Println("Checking Database Connection")
-	err := db.Ping()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
-	}
-	log.Println("Connection to DB Successfull")
-
 }
 
 func getEnv(key, defaultValue string) string {

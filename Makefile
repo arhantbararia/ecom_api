@@ -1,8 +1,7 @@
 build:
-  @go build -o bin/ecom_api cmd/main.go
+  go build -o ./bin/main ./cmd/main.go
 
-test:
-  @go test -v ./...
+run:
+  go run ./cmd/main.go
 
-run: build
-  @./bin/ecom_api
+.PHONY: build run
