@@ -9,7 +9,6 @@ import (
 	"github.com/arhantbararia/ecom_api/models"
 	"github.com/arhantbararia/ecom_api/service/auth"
 	"github.com/arhantbararia/ecom_api/utils"
-	"github.com/gorilla/mux"
 )
 
 // each service will be of type Handler
@@ -30,15 +29,6 @@ func NewHandler(db *sql.DB) *Handler {
 	}
 }
 
-func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/login", h.LoginHandle).Methods("POST")
-	router.HandleFunc("/register", h.RegisterHandle).Methods("POST")
-	router.HandleFunc("/user", h.GetUserData).Methods("GET")
-}
-
-
-
-
 func (h *Handler) GetUserData(w http.ResponseWriter, r *http.Request) {
 	//we are using JWT
 	//client will send JWT token in header
@@ -51,7 +41,6 @@ func (h *Handler) GetUserData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	// get user from db
 	var user models.User
 	err = GetUser(h.db, userID, &user)
@@ -62,7 +51,6 @@ func (h *Handler) GetUserData(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, http.StatusOK, user)
 }
-
 
 func (h *Handler) LoginHandle(w http.ResponseWriter, r *http.Request) {
 
@@ -124,7 +112,7 @@ func (h *Handler) RegisterHandle(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, err)
 	}
 
-	// check if user already exists
+	// check if user already exists by the email
 	userId, err := checkUserExists(h.db, payload.Email)
 	if err != nil {
 		utils.WriteError(w, http.StatusInternalServerError, err)

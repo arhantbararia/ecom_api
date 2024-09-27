@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/arhantbararia/ecom_api/models"
 	"github.com/arhantbararia/ecom_api/service/auth"
@@ -35,7 +34,8 @@ func CreateNewUserTable(db *sql.DB) error {
 		last_name VARCHAR(100) NOT NULL,
 		email VARCHAR(100) NOT NULL,
 		password VARCHAR(100) NOT NULL,
-		created_at TIMESTAMP NOT NULL
+		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	)`
 	_, err := db.Exec(query)
 	if err != nil {
@@ -44,6 +44,9 @@ func CreateNewUserTable(db *sql.DB) error {
 	log.Println("User Table Created!")
 	return nil
 }
+
+
+
 
 func createNewUser(db *sql.DB, payload models.RegisterUserPayload) error {
 	// now create a user_id using uuid
@@ -68,11 +71,10 @@ func createNewUser(db *sql.DB, payload models.RegisterUserPayload) error {
 		LastName:  payload.LastName,
 		Email:     payload.Email,
 		Password:  hashedPassword,
-		CreatedAt: time.Now(),
 	}
 	//insert user into db
-	query := "INSERT INTO users (id, first_name, last_name, email, password, created_at) VALUES (?, ?, ?, ?, ?, ?)"
-	_, err = db.Exec(query, user.ID, user.FirstName, user.LastName, user.Email, user.Password, user.CreatedAt)
+	query := "INSERT INTO users (id, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)"
+	_, err = db.Exec(query, user.ID, user.FirstName, user.LastName, user.Email, user.Password)
 	if err != nil {
 		return fmt.Errorf("error inserting new user: %v", err)
 	}
@@ -91,6 +93,7 @@ func GetUser(db *sql.DB, userID string, user *models.User) error {
 		&user.Email,
 		&user.Password,
 		&user.CreatedAt,
+		&user.LastUpdated,
 	)
 
 	if err != nil {
