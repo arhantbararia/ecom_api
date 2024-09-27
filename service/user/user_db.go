@@ -102,3 +102,30 @@ func GetUser(db *sql.DB, userID string, user *models.User) error {
 	return nil
 
 }
+
+func UpdateUser(db *sql.DB , userId string , updated_user models.UpdateUserPayload ) error {
+	query := "UPDATE users SET first_name = ? , last_name = ? WHERE id = ?"
+
+	_ , err := db.Exec(query, updated_user.FirstName , updated_user.LastName , userId )
+	if err != nil {
+		return fmt.Errorf("Error Updating the user  %v", err)
+	}
+
+	return nil
+}
+
+
+func DeleteUser(db *sql.DB , userId string) error {
+	query := "DELETE FROM users WHERE id = ?"
+	_ , err := db.Exec(query, userId )
+	if err != nil {
+		return fmt.Errorf("Error Deleting the user  %v", err)
+
+	}
+
+	return nil
+}
+
+
+
+

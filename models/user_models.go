@@ -24,3 +24,11 @@ type LoginUserPayload struct {
 	Email 		string `json:"email"`
 	Password 	string `json:"password"`
 }
+
+
+
+type UpdateUserPayload struct {
+	FirstName string `json:"firstname"`
+	LastName string `json:"lastname"`
+}
+

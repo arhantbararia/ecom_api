@@ -131,3 +131,47 @@ func (h *Handler) RegisterHandle(w http.ResponseWriter, r *http.Request) {
 	utils.WriteJSON(w, http.StatusOK, "User Created!")
 
 }
+
+func (h *Handler) UpdateUserData(w http.ResponseWriter, r *http.Request) {
+
+	userID, err := auth.GetUserIDFromToken(r)
+	if err != nil {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized"))
+		return
+	}
+
+	var updated_user models.UpdateUserPayload
+	if err := utils.ParseJson(r, &updated_user); err != nil {
+		utils.WriteError(w, http.StatusBadRequest, err)
+
+	}
+
+	err = UpdateUser(h.db, userID, updated_user)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+
+	utils.WriteJSON(w, http.StatusAccepted, "User Updated Successfully")
+
+}
+
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := auth.GetUserIDFromToken(r)
+	if err != nil {
+		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("unauthorized"))
+		return
+	}
+
+	err = DeleteUser(h.db, userID)
+
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+	}
+
+	utils.WriteJSON(w, http.StatusAccepted, "User Deleted Successfully")
+}
+
+
+func (h* Handler) UpdatePassword ( w http.ResponseWriter , r *http.Request ) {
+
+}
